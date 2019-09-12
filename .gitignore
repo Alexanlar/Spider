@@ -1,0 +1,28 @@
+/.tmp.drivedownload/
+*.[oa]
+*~
+Arduino/
+DHT11test/
+LCDTest/
+MPU6050_Arduino-master/
+MPU6050_raw/
+PlantReg/
+libraries/1473854197-3978 (2018_06_18 14_56_05 UTC).zip
+libraries/1473854197-3978.zip
+libraries/Arduino_Low_Power/
+libraries/Bounce2/
+libraries/Bridge/
+libraries/Coordinates/
+libraries/DHT-sensor-library-master/
+libraries/Gyro_header/
+libraries/I2Cdev/
+libraries/LiquidCrystal_I2C/
+libraries/LiquidCrystal_I2C_V112/
+libraries/MPU6050/
+libraries/README (2018_06_18 14_56_05 UTC).txt
+libraries/SD/
+libraries/SimpleDHT/
+libraries/VarSpeedServo-master/
+sketch_jun16b/
+sketch_oct21a/
+sketch_oct27a/
