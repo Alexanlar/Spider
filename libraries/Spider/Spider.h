@@ -1,8 +1,8 @@
 #ifndef Spider_h
 #define Spider_h
 
-#include <VarSpeedServo.h>
-// #include <Servo.h>
+//#include <VarSpeedServo.h>
+ #include <Servo.h>
 class Leg
 {
   public:
@@ -25,7 +25,8 @@ class Leg
 	int sholdNull_2 = 140, kneeNull_2 = 0, footNull_2 = 0;
 	float leg_x, leg_y, leg_z;
 	int legType = 0;
-	VarSpeedServo shold, knee, foot;
+	// VarSpeedServo shold, knee, foot;
+	Servo shold, knee, foot;
 };
 
 class Spider

@@ -16,16 +16,18 @@
 
 #include <Arduino.h>
 #include <Coordinates.h>
-#include <VarSpeedServo.h>
-// #include "Servo.h"
+// #include <VarSpeedServo.h>
+#include "Servo.h"
 #include <Spider.h>
 
+//Constructor
 Leg::Leg(int sPin, int kPin, int fPin) {
 	this->sholdPin = sPin;
 	this->kneePin  = kPin;
 	this->footPin  = fPin;
 }
 
+//Инициализация ноги со значениями для конкретного положения
 void Leg::start(int type = 0, int off_s = 0, int off_k = 0 , int off_f = 0) {
 	this->shold.attach(this->sholdPin);
 	this->knee.attach(this->kneePin);
@@ -49,19 +51,9 @@ void Leg::start(int type = 0, int off_s = 0, int off_k = 0 , int off_f = 0) {
 	this->sholdNull = scope_servo(this->sholdNull + off_s);
 	this->kneeNull = scope_servo(this->kneeNull + off_k);
 	this->footNull = scope_servo(this->footNull + off_f);
-	// this->shold.write(this->sholdNull);
-	// this->foot.write(this->footNull);
-	// this->knee.write(this->kneeNull);
-	
-	// Serial.println("sholdNull");
-	// Serial.println(sholdNull);
-	// Serial.println("kneeNull");
-	// Serial.println(kneeNull);
-	// Serial.println("footNull");
-	// Serial.println(footNull);
-	// Serial.println(" ");
 }
 
+//Движение плеча на угол angle
 void Leg::move_shold(float angle) {
 	float a;
 	angle = scope_joint(angle, MAX_SHOLD, MIN_SHOLD);
@@ -74,6 +66,8 @@ void Leg::move_shold(float angle) {
 	this->shold.write(scope_servo(a));
 	this->sholdAngle = scope_servo(a);
 }
+
+//Движение колена на угол angle
 void Leg::move_knee(float angle) {
 	float a;
 	angle = scope_joint(angle, MAX_KNEE, MIN_KNEE);
@@ -86,6 +80,8 @@ void Leg::move_knee(float angle) {
 	this->knee.write(scope_servo(a));
 	this->kneeAngle = scope_servo(a);
 }
+
+//Движение сутупни на угол angle
 void Leg::move_foot(float angle) {
 	float a;
 	angle = scope_joint(angle, MAX_FOOT, MIN_FOOT);
@@ -217,6 +213,8 @@ void Leg::rotate(float angle){
 	this->move_point(leg_x + Bx, leg_y + By, leg_z);
 }
 
+///////////////////////////////////////////////
+//Spider
 ///////////////////////////////////////////////
 Spider::Spider() {
 }

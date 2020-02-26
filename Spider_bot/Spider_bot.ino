@@ -1,4 +1,4 @@
-#include <VarSpeedServo.h>
+//#include <VarSpeedServo.h>
 
 
 #include <Spider.h>
@@ -22,11 +22,13 @@ int Xdir = 0, Ydir = 5, Zdir = 10;
 int d = 20;
 void loop()
 {
-//  bot.standup();
+  //  bot.standup();
+    bot.standup();
   delay(1000);
-  bot.rotate(35);
-//   Serial.print(x);
-//   Serial.print("\t");
-//   Serial.println(y);
-//   delay(100);
+   bot.seat();
+  //  bot.rotate(35);
+  //   Serial.print(x);
+  //   Serial.print("\t");
+  //   Serial.println(y);
+  //   delay(100);
 }
