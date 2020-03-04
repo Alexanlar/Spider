@@ -12,7 +12,6 @@ libraries/1473854197-3978.zip
 libraries/Arduino_Low_Power/
 libraries/Bounce2/
 libraries/Bridge/
-libraries/Coordinates/
 libraries/DHT-sensor-library-master/
 libraries/Gyro_header/
 libraries/I2Cdev/
@@ -27,3 +26,4 @@ sketch_jun16b/
 sketch_oct21a/
 sketch_oct27a/
 /sloeber.ino.cpp
+/Release/

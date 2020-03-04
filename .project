@@ -62,6 +62,11 @@
 			<location>C:/Users/Alexa/Documents/Sloeber/Spider/libraries/Spider</location>
 		</link>
 		<link>
+			<name>libraries/VarSpeedServo-master</name>
+			<type>2</type>
+			<location>C:/Users/Alexa/Documents/Arduino/libraries/VarSpeedServo-master</location>
+		</link>
+		<link>
 			<name>libraries/Wire</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.8.2/libraries/Wire</locationURI>
