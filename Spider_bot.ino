@@ -11,43 +11,23 @@ void setup ()
 {
   spider.start();
   Serial.begin(9600);
-//  spider.legBL.move_foot(0, spd);
-//  spider.legBR.move_foot(0, spd);
-//  spider.legFR.move_foot(0, spd);
-//  spider.legFL.move_foot(0, spd);
-//  spider.legBL.move_knee(0, spd);
-  spider.legBR.move_shold(0, spd);
-  Serial.println(0);
-  delay(1500);
-  spider.legBR.move_shold(-90, spd);
-  Serial.println(-90);
-  delay(1500);
-  spider.legBR.move_shold(90, spd);
-  Serial.println(90);
-  delay(1500);
-  spider.legBR.move_shold(180, spd);
-  Serial.println(180);
-  delay(1500);
-//  spider.legBR.move_knee(0, spd);
-//  spider.legFR.move_knee(0, spd);
-//  spider.legFL.move_knee(0, spd);
-//  spider.legBL.move_shold(0, spd);
-//  spider.legBR.move_shold(0, spd);
-//  spider.legFR.move_shold(0, spd);
-//  spider.legFL.move_shold(0, spd);
-//    
+  spider.standup();
 }
 void loop ()
 {
-// spider.standup();
-//   delay(500);
+	Serial.println("\n---------move_point");
+//	   delay(500);
 // spider.seat();
 //   delay(500);
-    
-//    spider.legBR.move_point(0, 0, 0);
+
+    spider.rotate(20, 50);
+    delay(2000);
+//    spider.legBR.move_point(0, 80, -82, false, 50);
 //    delay(500);
-//    spider.legBR.move_point(150, 0, 0);
-//    delay(500);
+//    spider.legBR.move_point(0, 80, 500, true, 500);
+//    delay(2000);
+//    spider.legBR.move_point(50, 0, 0);
+//    delay(2000);
 //    int x,y,z;
 //    bool a = true;
 //    for(x = 0; x < 200; x+=10)

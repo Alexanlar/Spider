@@ -3,7 +3,7 @@
 
 #include <ServoEasing.h>
 
-#define DEFAULT_SERVO_SPEED 200
+#define DEFAULT_SERVO_SPEED 500
 
 class Leg
 {
@@ -16,9 +16,9 @@ class Leg
 	void offset_shold(float angle);
 	void offset_knee(float angle);
 	void offset_foot(float angle);
-	void move_point(float x, float y, float z);
+	void move_point(float x, float y, float z, bool block = true, int speed = DEFAULT_SERVO_SPEED);
 	void straight();
-	void rotate(float angle);
+	void rotate(float angle, int speed);
   // private:
 	int sholdPin, kneePin, footPin;
 	float sholdAngle, kneeAngle, footAngle;
@@ -27,7 +27,7 @@ class Leg
 	int sholdNull_2 = 140, kneeNull_2 = 0, footNull_2 = 0;
 	float leg_x, leg_y, leg_z;
 	int legType = 0;
-	bool firstMove = true;
+	bool sholdFirst = true, kneeFirst = true, footFirst = true;
 	// VarSpeedServo shold, knee, foot;
 	ServoEasing shold, knee, foot;
 };
@@ -39,7 +39,7 @@ class Spider
     void start();
 	void standup();
 	void seat();
-	void rotate(float angle);
+	void rotate(float angle, int speed);
 	
     Leg legBL = Leg(0, 1, 2);
 	Leg legBR = Leg(4, 5, 6);

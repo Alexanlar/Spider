@@ -67,7 +67,7 @@ void Leg::move_shold(float angle, bool block, int speed) {
 	else{
 		a = sholdNull - angle;
 	}
-	if(!firstMove)
+	if(!sholdFirst)
 	{
 		if(!block)
 			shold.startEaseTo(scope_servo(a), speed);
@@ -79,6 +79,7 @@ void Leg::move_shold(float angle, bool block, int speed) {
 	}
 	else
 		shold.write(scope_servo(a));
+	sholdFirst = false;
 	sholdAngle = scope_servo(a);
 }
 
@@ -92,7 +93,7 @@ void Leg::move_knee(float angle, bool block, int speed) {
 	else{
 		a = kneeNull + angle;
 	}
-	if(!firstMove)
+	if(!kneeFirst)
 	{
 		if(!block)
 			knee.startEaseTo(scope_servo(a), speed);
@@ -104,6 +105,7 @@ void Leg::move_knee(float angle, bool block, int speed) {
 	}
 	else
 		knee.write(scope_servo(a));
+	kneeFirst = false;
 	kneeAngle = scope_servo(a);
 }
 
@@ -117,7 +119,7 @@ void Leg::move_foot(float angle, bool block, int speed) {
 	else{
 		a = footNull + angle;
 	}
-	if(!firstMove)
+	if(!0)
 	{
 		if(!block)
 			foot.startEaseTo(scope_servo(a), speed);
@@ -129,6 +131,7 @@ void Leg::move_foot(float angle, bool block, int speed) {
 	}
 	else
 		foot.write(scope_servo(a));
+	footFirst = false;
 //	Serial.print(scope_servo(a));
 //	Serial.print(" ");
 	footAngle = scope_servo(a);
@@ -155,88 +158,60 @@ void Leg::move_foot(float angle, bool block, int speed) {
 // }
 
 //Перемещение конца ноги в точку с координатами x,y,z в мм Инверсная кинематика
-void Leg::move_point(float x, float y, float z){
+void Leg::move_point(float x,
+					 float y,
+					 float z,
+					 bool block,
+					 int speed){
+	Serial.println("\n---------move_point");
+	Serial.print(x);
+	Serial.print(" ");
+	Serial.print(y);
+	Serial.print(" ");
+	Serial.println(z);
 	leg_x = x;
 	leg_y = y;
 	leg_z = z;
 	
 	Coordinates sPoint, kPoint, fPoint;
-	
-//	float l = sqrt(sq(sqrt(sq(x) + sq(y)) - C_LEN) + sq(z)); //растояние до точки
-	float xy = sqrt(sq(x) + sq(y)) - C_LEN; //растояние на плоскости xy
+	float sAngle = atan2(x, y);
+	float a, b, c;
+	c = sqrt(x*x  + y*y) - C_LEN;
+	b = z;
+	a = sqrt(c*c + b*b);
+//Проверка на то что дотянется и вычисление максималшьных координат
+	if(a > (F_LEN + T_LEN))
+	{
+		int l = (F_LEN + T_LEN);
+		float dx, dy;
+		dx = cos(sAngle)/C_LEN;
+		dy = sin(sAngle)/C_LEN;
+		x = ((x - dx) * l)/a + dx;
+		y = ((y - dy) * l)/a + dy;
+		z = (z * l)/a;
+	}
+	c = sqrt(x*x  + y*y) - C_LEN;
+	b = z;
+	a = sqrt(c*c + b*b);
+	float sinFpoint = (b*b + c*c - F_LEN*F_LEN - T_LEN*T_LEN)/(2*F_LEN*T_LEN);
+//	float fAngle = atan2(sinFpoint, sqrt(1-sinFpoint));
+	float fAngle = asin(sinFpoint);
+	float cosBe = (F_LEN + T_LEN*sinFpoint)/a;
+    float kAngle = PI/2 - atan2(b,c) - acos(cosBe);
 
-//https://habr.com/ru/post/156579/
-//	 Moving to local Coxa-Femur-target coordinate system
-//	 Note the case when hDist <= _cFemurOffset. This is for the blind zone.
-//	 We never can't reach the point that is nearer to the _cStart then
-//	 femur offset (_fStartFarOffset)
-//	 float localDestX = hDist <= _cFemurOffset
-//		 ? - _fStartFarOffset
-//		 : sqrt(sqr(hDist) - sqr(_cFemurOffset)) - _fStartFarOffset;
-//
-//	 float localDestY = dest.z - _fStartZOffset;
-//
-//	 Check reachability
-//	 float localDistSqr = sqr(localDestX) + sqr(localDestY);
-//	 if (localDistSqr > sqr(_fLength + _tLenght))
-//	 {
-//		 log("Can't reach!");
-//		 return false;
-//	 }
-	
-	// Find joint as circle intersect ( equations from http://e-maxx.ru/algo/circles_intersection & http://e-maxx.ru/algo/circle_line_intersection )
+    sAngle = degrees(sAngle);
+    kAngle = degrees(kAngle);
+    fAngle = degrees(fAngle);
 
-	float A = -2 * xy;
-	float B = -2 * z;
-	float C = sq(xy) + sq(z) + sq(F_LEN) - sq(T_LEN);
-	float X0 = -A * C / (sq(A) + sq(B));
-	float Y0 = -B * C / (sq(A) + sq(B));
-	float D = sqrt( sq(F_LEN) - (sq(C) / (sq(A) + sq(B))) );
-	float mult = sqrt( sq(D) / (sq(A) + sq(B)));
-	float ax, ay, bx, by;
-	ax = X0 + B * mult;
-	bx = X0 - B * mult;
-	ay = Y0 - A * mult;
-	by = Y0 + A * mult;
-	// Select solution on top as joint
-	float jointLocalL = ((ax > bx) ? ax : bx);
-	float jointLocalZ = (ax > bx) ? ay : by;
-	
-	sPoint.fromCartesian(x, y);
-	kPoint.fromCartesian(jointLocalL, jointLocalZ);
-	fPoint.fromCartesian(xy - jointLocalL, z - jointLocalZ);
-	// Serial.println("in class");
-	// Serial.println("sPoint");
-	// Serial.println(sPoint.getAngle() * 180/PI);
-	// Serial.println("kPoint");
-	// Serial.println(kPoint.getAngle() * 180/PI);
-	// Serial.println("fPoint");
-	// Serial.println(fPoint.getAngle() * 180/PI);
-	// Serial.println("xy");
-	// Serial.println(xy);
-	// Serial.println("jointLocalL");
-	// Serial.println(jointLocalL);
-	// Serial.println("jointLocalZ");
-	// Serial.println(jointLocalZ);
-	// Serial.println(" ");
-	float sAngle = 90 - (sPoint.getAngle() * 180/PI);
-	sAngle = scope_joint(sAngle, MAX_SHOLD, MIN_SHOLD);
+	Serial.print(sAngle);
+	Serial.print(" ");
+	Serial.print(kAngle);
+	Serial.print(" ");
+	Serial.println(fAngle);
 
-	float kAngle = (kPoint.getAngle() * 180/PI);
-	if(kAngle > 180)
-		kAngle = kAngle  - 360;
-	kAngle = 90 - kAngle;
-	kAngle = scope_joint(kAngle, MAX_KNEE, MIN_KNEE);
-	
-	float fAngle = fPoint.getAngle() * 180/PI;
-	if(fAngle > 180)
-		fAngle = fAngle  - 360;
-	fAngle = fAngle + kAngle;
-	fAngle = scope_joint(fAngle, MAX_FOOT, MIN_FOOT);
-	
-	move_shold(sAngle);
-	move_foot(fAngle);
-	move_knee(kAngle);
+	move_shold(sAngle, block, speed);
+	move_foot(fAngle, block, speed);
+	move_knee(kAngle, block, speed);
 	while(shold.isMoving() && knee.isMoving() && foot.isMoving()) {
 		// Serial.print(shold.isMoving());
 		// Serial.print(" ");
@@ -254,7 +229,7 @@ void Leg::straight() {
 }
 
 
-void Leg::rotate(float angle){
+void Leg::rotate(float angle, int speed){
 	Coordinates pointA, pointB;
 	
 	pointA.fromCartesian(BODY_WIDTH/2, BODY_LENGTH/2);
@@ -279,7 +254,7 @@ void Leg::rotate(float angle){
 	Serial.print(Bx);
 	Serial.print("\t");
 	Serial.println(By);
-	move_point(leg_x + Bx, leg_y + By, leg_z);
+	move_point(leg_x + Bx, leg_y + By, leg_z, true, speed);
 }
 
 ///////////////////////////////////////////////
@@ -303,10 +278,6 @@ void Spider::standup(){
 		legBR.move_point(a, a, i);
 		legFL.move_point(a, a, i);
 		legFR.move_point(a, a, i);
-		legBL.firstMove = false;
-		legBR.firstMove = false;
-		legFL.firstMove = false;
-		legFR.firstMove = false;
 		delay(50);
 	}
 }
@@ -323,28 +294,28 @@ int a = 55;
 	}
 }
 
-void Spider::rotate(float angle){
+void Spider::rotate(float angle, int speed){
 	int d = 30;
-	legBL.rotate(angle);
-	legBR.rotate(angle);
-	legFL.rotate(angle);
-	legFR.rotate(angle);
+	legBL.rotate(angle, speed);
+	legBR.rotate(angle, speed);
+	legFL.rotate(angle, speed);
+	legFR.rotate(angle, speed);
 	delay(d);
-	legBL.move_point(50, 50, -40);
+	legBL.move_point(50, 50, -40, true, speed);
 	delay(d);
-	legBL.move_point(50, 50, -70);
+	legBL.move_point(50, 50, -70, true, speed);
 	delay(d);
-	legBR.move_point(50, 50, -40);
+	legBR.move_point(50, 50, -40, true, speed);
 	delay(d);
-	legBR.move_point(50, 50, -70);
+	legBR.move_point(50, 50, -70, true, speed);
 	delay(d);
-	legFL.move_point(50, 50, -40);
+	legFL.move_point(50, 50, -40, true, speed);
 	delay(d);
-	legFL.move_point(50, 50, -70);
+	legFL.move_point(50, 50, -70, true, speed);
 	delay(d);
-	legFR.move_point(50, 50, -40);
+	legFR.move_point(50, 50, -40, true, speed);
 	delay(d);
-	legFR.move_point(50, 50, -70);
+	legFR.move_point(50, 50, -70, true, speed);
 }
 
 ////////////////////////////////////////
