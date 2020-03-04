@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Spider_bot</name>
+	<name>Spider</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -44,22 +44,22 @@
 		<link>
 			<name>libraries/Coordinates</name>
 			<type>2</type>
-			<location>C:/Users/Alexa/Documents/Arduino/libraries/Coordinates</location>
+			<location>C:/Users/Alexa/Documents/Sloeber/Spider/libraries/Coordinates</location>
 		</link>
 		<link>
 			<name>libraries/PlotPlus</name>
 			<type>2</type>
-			<location>C:/Users/Alexa/Documents/Arduino/libraries/PlotPlus</location>
+			<location>C:/Users/Alexa/Documents/Sloeber/Spider/libraries/PlotPlus</location>
 		</link>
 		<link>
 			<name>libraries/ServoEasing</name>
 			<type>2</type>
-			<location>C:/Users/Alexa/Documents/Arduino/libraries/ServoEasing</location>
+			<location>C:/Users/Alexa/Documents/Sloeber/Spider/libraries/ServoEasing</location>
 		</link>
 		<link>
 			<name>libraries/Spider</name>
 			<type>2</type>
-			<location>C:/Users/Alexa/Documents/Arduino/libraries/Spider</location>
+			<location>C:/Users/Alexa/Documents/Sloeber/Spider/libraries/Spider</location>
 		</link>
 		<link>
 			<name>libraries/Wire</name>

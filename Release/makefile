@@ -55,39 +55,39 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 AR += \
-C:\Users\Alexa\Documents\Sloeber\Spider_bot\Release\arduino.ar \
+C:\Users\Alexa\Documents\Sloeber\Spider\Release\arduino.ar \
 
 ELF += \
-Spider_bot.elf \
+Spider.elf \
 
 HEX += \
-Spider_bot.hex \
+Spider.hex \
 
 
 # All Target
-all: Spider_bot
+all: Spider
 
 # Tool invocations
-Spider_bot: $(HEX)
+Spider: $(HEX)
 	@echo 'Building target: $@'
 	@echo 'Printing size:'
-	"C:\Sloeber\arduinoPlugin\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino5/bin/avr-size" -A "C:/Users/Alexa/Documents/Sloeber/Spider_bot/Release/Spider_bot.elf"
+	"C:\Sloeber\arduinoPlugin\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino5/bin/avr-size" -A "C:/Users/Alexa/Documents/Sloeber/Spider/Release/Spider.elf"
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-C:\Users\Alexa\Documents\Sloeber\Spider_bot\Release\arduino.ar: $(AR_OBJ)
+C:\Users\Alexa\Documents\Sloeber\Spider\Release\arduino.ar: $(AR_OBJ)
 	@echo 'Starting archiver'
-	"C:\Sloeber\arduinoPlugin\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino5/bin/avr-gcc-ar" rcs     C:/Users/Alexa/Documents/Sloeber/Spider_bot/Release/arduino.ar $(AR_OBJ)
+	"C:\Sloeber\arduinoPlugin\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino5/bin/avr-gcc-ar" rcs     C:/Users/Alexa/Documents/Sloeber/Spider/Release/arduino.ar $(AR_OBJ)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-Spider_bot.elf: $(LINK_OBJ) $(AR)
+Spider.elf: $(LINK_OBJ) $(AR)
 	@echo 'Starting combiner'
-	"C:\Sloeber\arduinoPlugin\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino5/bin/avr-gcc" -Wall -Wextra -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega328p  -o "C:/Users/Alexa/Documents/Sloeber/Spider_bot/Release/Spider_bot.elf"   $(LINK_OBJ)   C:/Users/Alexa/Documents/Sloeber/Spider_bot/Release/arduino.ar  "-LC:/Users/Alexa/Documents/Sloeber/Spider_bot/Release" -lm
+	"C:\Sloeber\arduinoPlugin\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino5/bin/avr-gcc" -Wall -Wextra -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega328p  -o "C:/Users/Alexa/Documents/Sloeber/Spider/Release/Spider.elf"   $(LINK_OBJ)   C:/Users/Alexa/Documents/Sloeber/Spider/Release/arduino.ar  "-LC:/Users/Alexa/Documents/Sloeber/Spider/Release" -lm
 	@echo 'Finished building: $@'
 	@echo ' '
 
-Spider_bot.hex: $(ELF)
+Spider.hex: $(ELF)
 	@echo 'Do all objcopy commands'
 	${A.RECIPE.OBJCOPY.EEP.PATTERN}
 	${A.RECIPE.OBJCOPY.HEX.PATTERN}

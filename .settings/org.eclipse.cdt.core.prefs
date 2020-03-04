@@ -481,7 +481,7 @@ environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.PACKAGE_I
 environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.PACKAGE_ID/value=arduino
 environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.PROJECT_NAME/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.PROJECT_NAME/operation=replace
-environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.PROJECT_NAME/value=Spider_bot
+environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.PROJECT_NAME/value=Spider
 environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.SELECTED.PLATFORM/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.SELECTED.PLATFORM/operation=replace
 environment/project/io.sloeber.core.toolChain.release.999406581/JANTJE.SELECTED.PLATFORM/value=${eclipse_home}/arduinoPlugin/packages/arduino/hardware/avr/1.8.2
