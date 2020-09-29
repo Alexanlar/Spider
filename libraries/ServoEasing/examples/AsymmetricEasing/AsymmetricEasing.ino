@@ -32,9 +32,9 @@
 #define VERSION_EXAMPLE "2.0"
 
 #if defined(ESP8266)
-const int SERVO1_PIN = 14; // D5
-const int SERVO2_PIN = 12; // D6
-const int SERVO3_PIN = 13; // D7
+const int SERVO1_PIN = 0; // D5
+const int SERVO2_PIN = 1; // D6
+const int SERVO3_PIN = 2; // D7
 const int SPEED_IN_PIN = 0;
 
 #elif defined(ESP32)

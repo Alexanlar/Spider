@@ -69,7 +69,7 @@ HardwareTimer Timer20ms(3);  // 4 timers and 4. timer is used for tone()
 // Enable this to see information on each call
 // There should be no library which uses Serial, so enable it only for debugging purposes
 //#define TRACE
-//#define DEBUG
+// #define DEBUG
 // Propagate debug level
 #ifdef TRACE
 #define DEBUG
