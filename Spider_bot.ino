@@ -7,7 +7,7 @@
 
 Spider spider;
 ServoEasing shold, knee, foot;
-int angle, spd = 110;
+int angle, spd = 150;
 unsigned long time, dTime;
 void setup ()
 {
@@ -15,9 +15,9 @@ void setup ()
 	Serial.println("Start programm Spider_bot");
 	spider.start();
 	setSpeedForAllServos(spd);
-	setEasingTypeForAllServos(EASE_SINE_IN_OUT);
+	setEasingTypeForAllServos(EASE_CUBIC_OUT);
     setEaseToForAllServos();
-	spider.standup(70);
+	spider.standup(60);
 	time = millis();
 //	Serial.print("0deg = ");
 //	Serial.println(spider.legFR.foot.DegreeToMicrosecondsOrUnits(0));
@@ -110,7 +110,7 @@ void loop ()
 			case 8:
 			{
 				Serial.println("Move:...");
-				spider.move2(serialReadInt());;
+				spider.move(serialReadInt(), serialReadInt());;
 //				spider.standup(80);
 				break;
 			}
@@ -138,21 +138,43 @@ void loop ()
 	{
 		spider.standup(20);
 	}
-	delay(500);
 
-//	while(true)
-//	{
-//		spider.move2(50);
-//		time = millis();
-//		spd += 10;
-//		setSpeedForAllServos(spd);
-//	}
+	test_bot();
+//	spd += 10;
+//	setSpeedForAllServos(spd);
 
-//	   spider.standup();
-//	       delay(500);
-//	delay(1000);
 }
 
+void test_bot()
+{
+	spider.standup(70);
+	spider.move(0, 50);
+	spider.move(0, 50);
+	spider.move(0, 50);
+	spider.standup(spider.height);
+	spider.rotate(30);
+	spider.rotate(30);
+	spider.rotate(30);
+	spider.rotate(30);
+	spider.bodyMove(20, 20, spider.height);
+	delay(500);
+	spider.bodyMove(-40, 0, spider.height);
+	delay(500);
+	spider.bodyMove(0, -40, spider.height);
+	delay(500);
+	spider.bodyMove(40, 0, spider.height);
+	delay(500);
+	spider.standup(spider.height);
+	delay(500);
+	spider.standup(35);
+	delay(500);
+	spider.standup(70);
+	delay(500);
+	spider.standup(100);
+//	spider.move(50);
+	time = millis();
+	delay(1000);
+}
 int serialReadInt()
 {
 	Serial.print("input int - :");

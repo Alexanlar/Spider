@@ -12,8 +12,8 @@
 #define BODY_WIDTH 70
 #define BODY_LENGTH 70
 
-#define DEFAULT_LEG_X 62
-#define DEFAULT_LEG_Y 20
+#define DEFAULT_LEG_X 55
+#define DEFAULT_LEG_Y 30
 #define DEFAULT_LEG_Z 60
 
 #include <Arduino.h>
@@ -376,50 +376,6 @@ void Spider::march()
 
 	setSpeedForAllServos(spd);
 }
-void Spider::move(int dist)
-{
-	int h = -1 * this->height;
-	int dh = 5;
-	int a = 44;
-//	legBL.move_point(a, a, h);
-//	legBR.move_point(a, a, h);
-//	legFL.move_point(a, a, h);
-//	legFR.move_point(a, a, h);
-	//Левый шаг
-	legBL.move_point(legBL.leg_x, legBL.leg_y - dist, h + 2*dh);
-	legFR.move_point(legFR.leg_x, legFR.leg_y + dist, h + 2*dh);
-	legBR.move_point(legBR.leg_x, legBR.leg_y + dist, h);
-	legFL.move_point(legFL.leg_x, legFL.leg_y - dist, h);
-	this->startMove();
-	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
-	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
-	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
-	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
-	this->startMove();
-	//Правый шаг
-	legBR.move_point(legBR.leg_x, legBR.leg_y - 2*dist, h + 4*dh);
-	legFL.move_point(legFL.leg_x, legFL.leg_y + 2*dist, h + 4*dh);
-	legBL.move_point(legBL.leg_x, legBL.leg_y + 2*dist, h);
-	legFR.move_point(legFR.leg_x, legFR.leg_y - 2*dist, h);
-	this->startMove();
-	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
-	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
-	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
-	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
-	this->startMove();
-	//Левый шаг
-	legBL.move_point(legBL.leg_x, legBL.leg_y - 2*dist, h + 4*dh);
-	legFR.move_point(legFR.leg_x, legFR.leg_y + 2*dist, h + 4*dh);
-	legBR.move_point(legBR.leg_x, legBR.leg_y + 2*dist, h);
-	legFL.move_point(legFL.leg_x, legFL.leg_y - 2*dist, h);
-	this->startMove();
-	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
-	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
-	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
-	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
-	this->startMove();
-
-}
 
 void Spider::move2(int dist)
 {
@@ -427,36 +383,65 @@ void Spider::move2(int dist)
 	int dh = this->dhStep;
 	int dh2 = this->dhStep2;
 //1
-	this->step(1, dist);  //BL
+	this->step2(1, 0, dist);  //BL
 //2
-	this->step(3, dist);  //FR
+	this->step2(3, 0, dist);  //FR
 	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
 	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
 	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
 	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
 	this->startMove();
-	this->bodyMove(0, 0-dist, this->height);
+	this->bodyMove(0, -dist, this->height);
 //3
-	this->step(2, 2*dist);  //BR
+	this->step2(2, 0, 2*dist);  //BR
 
 //4
-	this->step(4, 2*dist);  //FL
+	this->step2(4, 0, 2*dist);  //FL
 	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
 	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
 	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
 	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
 	this->startMove();
 
-	this->bodyMove(0, 0-dist, this->height);
+	this->bodyMove(0, -dist, this->height);
 //5
-	this->step(1, dist);  //BL
+	this->step2(1, 0, dist);  //BL
 //6
-	this->step(3, dist);  //FR
+	this->step2(3, 0,dist);  //FR
 	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
 	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
 	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
 	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
 	this->startMove();
+}
+
+void Spider::move(int distX, int distY)
+{
+	int h = -1 * this->height;
+//1
+	legBL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, -1 * h);
+	this->step2(1, distX, distY);  //BL
+//2
+	legFL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, -1 * h);
+	this->step2(4, distX, distY);  //FL
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
+	this->bodyMove(-distX, -distY, this->height);
+//3
+	this->step2(2, 2*distX, 2*distY);  //BR
+
+//4
+	this->step2(3, 2*distX, 2*distY);  //FR
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
+
+	this->bodyMove(-distX, -distY, this->height);
 }
 
 void Spider::step(int legInd, float dist)
@@ -483,6 +468,27 @@ void Spider::step(int legInd, float dist)
 	legRight->move_point(legRight->leg_x, legRight->leg_y, h - dh2);
 	this->startMove();
 	legStep->move_point(legStep->leg_x, legStep->leg_y + dist, h + dh); //BL
+	this->startMove();
+}
+void Spider::step2(int legInd, float distX, float distY)
+{
+	int h = -this->height;
+	int dh = this->dhStep;
+
+	Leg *legStep = this->getLegByInd(legInd);
+
+	if(legInd == 1 || legInd == 2)
+	{
+		distY = -distY;
+	}
+	if(legInd == 1 || legInd == 4)
+	{
+		distX = -distX;
+	}
+
+	legStep->move_point(legStep->leg_x + distX, legStep->leg_y + distY, h + dh);
+	this->startMove();
+	legStep->move_point(legStep->leg_x, legStep->leg_y, h);
 	this->startMove();
 }
 void Spider::bodyMove(float x, float y, float z)

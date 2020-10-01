@@ -48,9 +48,10 @@ class Spider
 	void rotate(float angle);
 	void startMove();
 	void march();
-	void move(int dist);
+	void move(int distX, int distY);
 	void move2(int dist);
 	void step(int legInd, float dist);
+	void step2(int legInd, float distX, float distY);
 	void bodyMove(float x, float y, float z);
 	Leg * getLegByInd(int ind);
 	
@@ -59,8 +60,8 @@ class Spider
 	Leg legFR = Leg(8, 9, 10, 3);
 	Leg	legFL = Leg(12, 13, 14, 4);
 
-	static const int dhStep = 20;
-	static const int dhStep2 = 5;
+	static const int dhStep = 40;
+	static const int dhStep2 = 10;
 //	int def_mills[4][3][2] = {{{513, 2554}, {110, 530}, {110, 530}},
 //							 {{513, 2539}, {110, 530}, {110, 530}},
 //							 {{537, 2588}, {110, 530}, {110, 530}},
