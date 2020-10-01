@@ -12,6 +12,9 @@
 #define BODY_WIDTH 70
 #define BODY_LENGTH 70
 
+#define DEFAULT_LEG_X 62
+#define DEFAULT_LEG_Y 20
+#define DEFAULT_LEG_Z 60
 
 #include <Arduino.h>
 #include <Coordinates.h>
@@ -27,10 +30,11 @@
 int allServoDegree[12];
 
 //Constructor
-Leg::Leg(int sPin, int kPin, int fPin) { // @suppress("Class members should be properly initialized")
+Leg::Leg(int sPin, int kPin, int fPin, int ind) { // @suppress("Class members should be properly initialized")
 	sholdPin = sPin;
 	kneePin  = kPin;
 	footPin  = fPin;
+	this->ind = ind;
 }
 
 //Инициализация ноги со значениями для конкретного положения
@@ -135,14 +139,13 @@ void Leg::move_foot(float angle, int speed) {
 //Перемещение конца ноги в точку с координатами x,y,z в мм Инверсная кинематика
 void Leg::move_point(float x,
 					 float y,
-					 float z,
-					 int speed){
-	Serial.println("\n---------move_point");
-	Serial.print(x);
-	Serial.print(" ");
-	Serial.print(y);
-	Serial.print(" ");
-	Serial.println(z);
+					 float z){
+//	Serial.println("\n---------move_point");
+//	Serial.print(x);
+//	Serial.print(" ");
+//	Serial.print(y);
+//	Serial.print(" ");
+//	Serial.println(z);
 	leg_x = x;
 	leg_y = y;
 	leg_z = z;
@@ -177,23 +180,15 @@ void Leg::move_point(float x,
     kAngle = degrees(kAngle);
     fAngle = degrees(fAngle);
 
-	Serial.print(sAngle);
-	Serial.print(" ");
-	Serial.print(kAngle);
-	Serial.print(" ");
-	Serial.println(fAngle);
-
-	move_shold(round(sAngle), speed);
-	move_knee(round(kAngle), speed);
-//	move_foot(round(fAngle)<0?round(fAngle):180 - round(fAngle), speed);
-	move_foot(90 - round(fAngle), speed);
-
-
-//	Serial.print(sServoNextPositionArray[sholdInd]);
+//	Serial.print(sAngle);
 //	Serial.print(" ");
-//	Serial.print(sServoNextPositionArray[kneeInd]);
+//	Serial.print(kAngle);
 //	Serial.print(" ");
-//	Serial.println(sServoNextPositionArray[footInd]);
+//	Serial.println(fAngle);
+
+	move_shold(round(sAngle));
+	move_knee(round(kAngle));
+	move_foot(90 - round(fAngle));
 }
 
 void Leg::straight() {
@@ -203,21 +198,25 @@ void Leg::straight() {
 }
 
 
-void Leg::rotate(float angle, int speed){
+void Leg::rotateZ(float angle){
 	Coordinates pointA, pointB;
 	
-	pointA.fromCartesian(BODY_WIDTH/2, BODY_LENGTH/2);
-//	float r = pointA.getR();
+	pointA.fromCartesian(leg_x + (BODY_WIDTH/2), leg_y + (BODY_LENGTH/2));
 	float newAngle;
 	if(legType == 1){
-		newAngle = scope_joint(90 - (pointA.getAngle() * 180/PI) + angle, MAX_SHOLD, MIN_SHOLD);
+		newAngle = scope_joint((pointA.getAngle() * 180/PI) - angle, MAX_SHOLD, MIN_SHOLD);
 	}
 	else{
-		newAngle = scope_joint(90 - (pointA.getAngle() * 180/PI) - angle, MAX_SHOLD, MIN_SHOLD);
+		newAngle = scope_joint((pointA.getAngle() * 180/PI) + angle, MAX_SHOLD, MIN_SHOLD);
 	}
-	pointB.fromPolar(pointA.getR(), (90 - newAngle) * PI/180);
+	pointB.fromPolar(pointA.getR(), (newAngle) * PI/180);
 	float Bx = pointB.getX() - BODY_WIDTH/2; 
 	float By = pointB.getY() - BODY_LENGTH/2;
+
+	Serial.print("pointB XY: ");
+	Serial.print(pointB.getX());
+	Serial.print(" ");
+	Serial.println(pointB.getY());
 	
 	Serial.print(leg_x);
 	Serial.print("\t");
@@ -228,9 +227,91 @@ void Leg::rotate(float angle, int speed){
 	Serial.print(Bx);
 	Serial.print("\t");
 	Serial.println(By);
-	move_point(leg_x + Bx, leg_y + By, leg_z, speed);
+	move_point(Bx, By, leg_z);
 }
 
+void Leg::rotateX(float angle){
+	Coordinates pointA, pointB;
+
+	pointA.fromCartesian(leg_y + (BODY_LENGTH/2), leg_z);
+	float newAngle;
+	Serial.print("Angle : ");
+	Serial.println((pointA.getAngle() * 180/PI));
+	Serial.print("r : ");
+	Serial.println(pointA.getR());
+		newAngle = (pointA.getAngle() * 180/PI) - angle;
+	Serial.print("newAngle : ");
+	Serial.println(newAngle);
+	pointB.fromPolar(pointA.getR(), (newAngle) * PI/180);
+	float By = pointB.getX() - BODY_LENGTH/2;
+	float Bz = pointB.getY();
+
+	Serial.print("pointB XY: ");
+	Serial.print(pointB.getX());
+	Serial.print(" ");
+	Serial.println(pointB.getY());
+
+	Serial.print("pointB XY: ");
+	Serial.print(pointB.getX());
+	Serial.print(" ");
+	Serial.println(pointB.getY());
+
+	Serial.print(leg_x);
+	Serial.print("\t");
+	Serial.print(leg_y);
+	Serial.print("\t");
+	Serial.print(leg_z);
+	Serial.print("\t By: ");
+	Serial.print(By);
+	Serial.print("\t Bz: ");
+	Serial.println(Bz);
+	move_point(leg_x, By, Bz);
+}
+
+void Leg::rotateXY(float angle){
+	Coordinates pointA, pointB;
+
+	float xy_len = sqrt((leg_y + BODY_LENGTH/2)*(leg_y + BODY_LENGTH/2) + (leg_x + BODY_WIDTH/2)*(leg_x + BODY_WIDTH/2));
+	float y_len = leg_y + BODY_LENGTH/2;
+	float x_len = leg_x + BODY_WIDTH/2;
+	pointA.fromCartesian(xy_len, leg_z);
+	Serial.print("Angle : ");
+	Serial.println((pointA.getAngle() * 180/PI));
+	Serial.print("r : ");
+	Serial.println(pointA.getR());
+	float newAngle;
+//	if(legType == 1){
+		newAngle = (pointA.getAngle() * 180/PI) + angle;
+//	}
+//	else{
+//		newAngle = (pointA.getAngle() * 180/PI) - angle;
+//	}
+	pointB.fromPolar(pointA.getR(), (newAngle) * PI/180);
+	float Bxy = pointB.getX() - BODY_WIDTH/2;
+	float Bz = pointB.getY();
+	float By = (pointB.getX()*y_len)/xy_len - BODY_LENGTH/2;
+	float Bx = (pointB.getX()*x_len)/xy_len - BODY_WIDTH/2;
+
+	Serial.print("pointB XY: ");
+	Serial.print(pointB.getX());
+	Serial.print(" ");
+	Serial.println(pointB.getY());
+
+	Serial.print(leg_x);
+	Serial.print("\t");
+	Serial.print(leg_y);
+	Serial.print("\t");
+	Serial.print(leg_z);
+	Serial.print("\t Bxy: ");
+	Serial.print(Bxy);
+	Serial.print("\t Bx: ");
+	Serial.print(Bx);
+	Serial.print("\t By: ");
+	Serial.print(By);
+	Serial.print("\t Bz: ");
+	Serial.println(Bz);
+	move_point(Bx, By, Bz);
+}
 ///////////////////////////////////////////////
 //Spider
 ///////////////////////////////////////////////
@@ -246,11 +327,10 @@ void Spider::start() {
 }
 
 void Spider::standup(float h){
-	int a = 44;
-	legBL.move_point(a, a, -1 * h);
-	legBR.move_point(a, a, -1 * h);
-	legFL.move_point(a, a, -1 * h);
-	legFR.move_point(a, a, -1 * h);
+	legBL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, -1 * h);
+	legBR.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, -1 * h);
+	legFL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, -1 * h);
+	legFR.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, -1 * h);
 	this->height = h;
 	this->startMove();
 //	this->march();
@@ -265,12 +345,11 @@ void Spider::seat(){
 	this->startMove();
 }
 
-void Spider::rotate(float angle, int speed){
-	int a = 55;
-	legBL.rotate(angle, speed);
-	legBR.rotate(angle, speed);
-	legFL.rotate(angle, speed);
-	legFR.rotate(angle, speed);
+void Spider::rotate(float angle){
+	legBL.rotateZ(angle);
+	legBR.rotateZ(angle);
+	legFL.rotateZ(angle);
+	legFR.rotateZ(angle);
 	this->startMove();
 	this->march();
 }
@@ -279,28 +358,144 @@ void Spider::march()
 {
 	int h1 = -40;
 	int h2 = -1 * this->height;
-	int a = 44;
-	int b = 40;
+	int spd = legBL.foot.mSpeed;
 	setSpeedForAllServos(200);
-	legBL.move_point(b, b, h1);
-	legFR.move_point(b, b, h1);
+	legBL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h1);
+	legFR.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h1);
 	this->startMove();
-	legBL.move_point(a, a, h2);
-	legFR.move_point(a, a, h2);
-	this->startMove();
-
-	legBR.move_point(b, b, h1);
-	legFL.move_point(b, b, h1);
-	this->startMove();
-	legBR.move_point(a, a, h2);
-	legFL.move_point(a, a, h2);
+	legBL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h2);
+	legFR.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h2);
 	this->startMove();
 
-	setSpeedForAllServos(50);
+	legBR.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h1);
+	legFL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h1);
+	this->startMove();
+	legBR.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h2);
+	legFL.move_point(DEFAULT_LEG_X, DEFAULT_LEG_Y, h2);
+	this->startMove();
+
+	setSpeedForAllServos(spd);
 }
-void Spider::move()
+void Spider::move(int dist)
 {
+	int h = -1 * this->height;
+	int dh = 5;
+	int a = 44;
+//	legBL.move_point(a, a, h);
+//	legBR.move_point(a, a, h);
+//	legFL.move_point(a, a, h);
+//	legFR.move_point(a, a, h);
+	//Левый шаг
+	legBL.move_point(legBL.leg_x, legBL.leg_y - dist, h + 2*dh);
+	legFR.move_point(legFR.leg_x, legFR.leg_y + dist, h + 2*dh);
+	legBR.move_point(legBR.leg_x, legBR.leg_y + dist, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y - dist, h);
+	this->startMove();
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
+	//Правый шаг
+	legBR.move_point(legBR.leg_x, legBR.leg_y - 2*dist, h + 4*dh);
+	legFL.move_point(legFL.leg_x, legFL.leg_y + 2*dist, h + 4*dh);
+	legBL.move_point(legBL.leg_x, legBL.leg_y + 2*dist, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y - 2*dist, h);
+	this->startMove();
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	this->startMove();
+	//Левый шаг
+	legBL.move_point(legBL.leg_x, legBL.leg_y - 2*dist, h + 4*dh);
+	legFR.move_point(legFR.leg_x, legFR.leg_y + 2*dist, h + 4*dh);
+	legBR.move_point(legBR.leg_x, legBR.leg_y + 2*dist, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y - 2*dist, h);
+	this->startMove();
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
 
+}
+
+void Spider::move2(int dist)
+{
+	int h = -1 * this->height;
+	int dh = this->dhStep;
+	int dh2 = this->dhStep2;
+//1
+	this->step(1, dist);  //BL
+//2
+	this->step(3, dist);  //FR
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
+	this->bodyMove(0, 0-dist, this->height);
+//3
+	this->step(2, 2*dist);  //BR
+
+//4
+	this->step(4, 2*dist);  //FL
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
+
+	this->bodyMove(0, 0-dist, this->height);
+//5
+	this->step(1, dist);  //BL
+//6
+	this->step(3, dist);  //FR
+	legBL.move_point(legBL.leg_x, legBL.leg_y, h);
+	legBR.move_point(legBR.leg_x, legBR.leg_y, h);
+	legFR.move_point(legFR.leg_x, legFR.leg_y, h);
+	legFL.move_point(legFL.leg_x, legFL.leg_y, h);
+	this->startMove();
+}
+
+void Spider::step(int legInd, float dist)
+{
+	int h = -1 * this->height;
+	int dh = this->dhStep;
+	int dh2 = this->dhStep2;
+	//расчет индексов
+	int indDiag = (legInd<3)?legInd+2:legInd-2;
+	int indLeft = (legInd==1)?4:legInd-1;
+	int indRight = (legInd==4)?1:legInd+1;
+	//Получение ссылок на объекты ног
+	Leg *legStep = this->getLegByInd(legInd);
+	Leg *legDiag = this->getLegByInd(indDiag);
+	Leg *legLeft = this->getLegByInd(indLeft);
+	Leg *legRight = this->getLegByInd(indRight);
+
+	if(legInd == 1 || legInd == 2)
+	{
+		dist *= -1;
+	}
+	legDiag->move_point(legDiag->leg_x, legDiag->leg_y, h + dh2);
+	legLeft->move_point(legLeft->leg_x, legLeft->leg_y, h + dh2);
+	legRight->move_point(legRight->leg_x, legRight->leg_y, h - dh2);
+	this->startMove();
+	legStep->move_point(legStep->leg_x, legStep->leg_y + dist, h + dh); //BL
+	this->startMove();
+}
+void Spider::bodyMove(float x, float y, float z)
+{
+	legBL.move_point(legBL.leg_x - x, legBL.leg_y - y, 0 - z);
+	legBR.move_point(legBR.leg_x + x, legBR.leg_y - y, 0 - z);
+	legFL.move_point(legFL.leg_x - x, legFL.leg_y + y, 0 - z);
+	legFR.move_point(legFR.leg_x + x, legFR.leg_y + y, 0 - z);
+	this->startMove();
+//	legBL.leg_x += x; legBL.leg_y += y; legBL.leg_z = 0 - z;
+//	legBR.leg_x -= x; legBR.leg_y += y; legBR.leg_z = 0 - z;
+//	legFL.leg_x += x; legFL.leg_y -= y; legFL.leg_z = 0 - z;
+//	legFR.leg_x -= x; legFR.leg_y -= y; legFR.leg_z = 0 - z;
 }
 void Spider::startMove()
 {
@@ -330,8 +525,21 @@ void Spider::startMove()
 	do
 	{
 		// here you can call your own program
-		delay(REFRESH_INTERVAL / 1000); // optional 20 ms delay - REFRESH_INTERVAL is in Microseconds
+		delay(REFRESH_INTERVAL / 2000); // optional 20 ms delay - REFRESH_INTERVAL is in Microseconds
 	} while (!updateAllServos());
+}
+Leg * Spider::getLegByInd(int ind)
+{
+	if(legBL.ind == ind)
+		return &legBL;
+	if(legBR.ind == ind)
+		return &legBR;
+	if(legFL.ind == ind)
+		return &legFL;
+	if(legFR.ind == ind)
+		return &legFR;
+	else
+		return &legBL;
 }
 ////////////////////////////////////////
 int scope_servo(int a){

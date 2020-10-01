@@ -7,16 +7,18 @@
 
 Spider spider;
 ServoEasing shold, knee, foot;
-int angle, spd = 100;
+int angle, spd = 110;
+unsigned long time, dTime;
 void setup ()
 {
 	Serial.begin(9600);
 	Serial.println("Start programm Spider_bot");
 	spider.start();
 	setSpeedForAllServos(spd);
-	setEasingTypeForAllServos(EASE_QUADRATIC_OUT);
+	setEasingTypeForAllServos(EASE_SINE_IN_OUT);
     setEaseToForAllServos();
-	spider.standup(40);
+	spider.standup(70);
+	time = millis();
 //	Serial.print("0deg = ");
 //	Serial.println(spider.legFR.foot.DegreeToMicrosecondsOrUnits(0));
 //	Serial.print("180deg = ");
@@ -43,17 +45,47 @@ void loop ()
 		switch(IntVar)
 		{
 			case 1:
-				spider.march();
+			   setSpeedForAllServos(serialReadInt());
 			   break;
 			case 2:
 				spider.standup(serialReadInt());
 				break;
 			case 3:
-				spider.rotate(serialReadInt(), spd);
+			{
+				int a = serialReadInt();
+				spider.legFL.rotateXY(a);
+				spider.legFR.rotateXY(a);
+				spider.legBL.rotateXY(-a);
+				spider.legBR.rotateXY(-a);
+				spider.startMove();
 				break;
+			}
 			case 4:
 			{
 				Serial.println("Input coordinates:...");
+				while (Serial.available() == false)delay(50);
+				int x=serialReadInt() ,y=serialReadInt(), z=serialReadInt();
+				Serial.println(x);
+				Serial.println(y);
+				Serial.println(z);
+				spider.bodyMove(x, y, z);
+			    break;
+			}
+			case 5:
+			{
+				Serial.println("legBL Input coordinates:...");
+				while (Serial.available() == false)delay(50);
+				int x=serialReadInt() ,y=serialReadInt(), z=serialReadInt();
+				Serial.println(x);
+				Serial.println(y);
+				Serial.println(z);
+				spider.legBL.move_point(x, y, z);
+				spider.startMove();
+			    break;
+			}
+			case 6:
+			{
+				Serial.println("legFR Input coordinates:...");
 				while (Serial.available() == false)delay(50);
 				int x=serialReadInt() ,y=serialReadInt(), z=serialReadInt();
 				Serial.println(x);
@@ -63,67 +95,59 @@ void loop ()
 				spider.startMove();
 			    break;
 			}
-			case 5:
-			{
-				Serial.println("Input foot angle:...");
-				int a = serialReadInt();
-				spider.legFR.foot.easeTo(a);
-				spider.legFL.foot.easeTo(a);
-				spider.legBR.foot.easeTo(a);
-				spider.legBL.foot.easeTo(a);
-				Serial.print("spider.legFR.getDeltaMicrosecondsOrUnits = ");
-				Serial.println(spider.legFR.foot.getDeltaMicrosecondsOrUnits());
-				break;
-			}
-			case 6:
-			{
-				Serial.println("Input knee angle:...");
-				int a = serialReadInt();
-				spider.legFR.knee.easeTo(a);
-				spider.legFL.knee.easeTo(a);
-				spider.legBR.knee.easeTo(a);
-				spider.legBL.knee.easeTo(a);
-				Serial.print("spider.legFR.kneeAngle = ");
-				Serial.println(spider.legFR.kneeAngle);
-				break;
-			}
 			case 7:
 			{
-				Serial.println("Input should angle:...");
-				int a = serialReadInt();
-				spider.legFR.shold.easeTo(a);
-				spider.legFL.shold.easeTo(a);
-				spider.legBR.shold.easeTo(a);
-				spider.legBL.shold.easeTo(a);
-				Serial.print("spider.legFR.sholdAngle = ");
-				Serial.println(spider.legFR.sholdAngle);
+				Serial.println("legBR Input coordinates:...");
+				while (Serial.available() == false)delay(50);
+				int x=serialReadInt() ,y=serialReadInt(), z=serialReadInt();
+				Serial.println(x);
+				Serial.println(y);
+				Serial.println(z);
+				spider.legBR.move_point(x, y, z);
+				spider.startMove();
+			    break;
+			}
+			case 8:
+			{
+				Serial.println("Move:...");
+				spider.move2(serialReadInt());;
+//				spider.standup(80);
 				break;
 			}
 			default:
 			{
 				Serial.print("Move foot microS: ");
 				Serial.println(IntVar);
-				spider.legBR.foot.writeMicrosecondsOrUnits(IntVar);
-//				spider.legFR.knee.easeTo(IntVar);
-//				spider.legFR.shold.easeTo(IntVar);
-//				Serial.print("spider.legFR.footAngle = ");
-//				Serial.println(spider.legFR.footAngle);
-//				Serial.print("spider.legFR.kneeAngle = ");
-//				Serial.println(spider.legFR.kneeAngle);
-//				Serial.print("spider.legFR.sholdAngle = ");
-				//				Serial.println(spider.legFR.kneeAngle);
+				spider.bodyMove(20, 20, 50);
+				spider.standup(spider.height);
+
 			}
 		}
+		time = millis();
 //		for(int i = 0; i < 12; i++)
 //		{
 //			Serial.print(allServoDegree[i]);
 //			Serial.print(" ");
 //		}
 //		Serial.println("");
+
     }
 
-//	   spider.seat();
-//	       delay(500);
+	dTime = millis() - time;
+	if(dTime > 15000 && spider.height != 20)
+	{
+		spider.standup(20);
+	}
+	delay(500);
+
+//	while(true)
+//	{
+//		spider.move2(50);
+//		time = millis();
+//		spd += 10;
+//		setSpeedForAllServos(spd);
+//	}
+
 //	   spider.standup();
 //	       delay(500);
 //	delay(1000);
